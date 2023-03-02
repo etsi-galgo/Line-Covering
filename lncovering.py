@@ -33,7 +33,7 @@ def main():
     # Generate a line to cover
     line, ones = LineGenerate(lenght, m)
     L = 142
-    n, totalL = greedy.GreedySE(base,line, ones,L)
+    n, totalL = greedy.GreedyPP(base,line, ones,L)
     print('Total number of tours:', n)
     print('Total lenght:', totalL)
 
