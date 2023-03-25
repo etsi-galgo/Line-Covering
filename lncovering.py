@@ -8,6 +8,7 @@ Created on Thu Feb 23 10:34:12 2023
 import numpy as np
 import random
 import greedy
+import dp
 
 def LineGenerate(lenght, m):
     """
@@ -22,7 +23,7 @@ def LineGenerate(lenght, m):
     for i in range(1,m):
         ones = np.concatenate((ones, np.arange(ab[i,0],ab[i,1])))
     line[ones] = 1  # put the generated segments on the line
-    return line, ones
+    return line, ones, ab
 
 
 def main():
@@ -31,11 +32,21 @@ def main():
     base = np.array((50,50)) # base station coordinates
     
     # Generate a line to cover
-    line, ones = LineGenerate(lenght, m)
+    line, ones, ab = LineGenerate(lenght, m)
     L = 142
-    n, totalL = greedy.GreedyPP(base,line, ones,L)
-    print('Total number of tours:', n)
-    print('Total lenght:', totalL)
+    
+    ab_cut = ab
+    c = np.empty(0)
+    while not (ab_cut.size == 0):
+        c = np.append(c, dp.Candidates(base, L, ab_cut))
+        ab_cut = ab_cut[:ab_cut.shape[0]-1]
+    
+    print(ab)
+    print(c)
+    
+    #n, totalL = greedy.GreedyPP(base,line, ones,L)
+    #print('Total number of tours:', n)
+    #print('Total lenght:', totalL)
 
 
 if __name__ == "__main__":
