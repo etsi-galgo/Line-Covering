@@ -27,5 +27,25 @@ def Candidates(base, L, ab):
             if (xA<ab[0,0]):
                 on_gap = True 
     c = c[:c.size-1]
-    return c
+    c_ass = c-dist 
+    return c, c_ass
+
+def AllCandidates(base, L, ab):
+    ab_cut = ab
+    c = np.empty(0)
+    c_ass = np.empty(0)
+    while not (ab_cut.size == 0):
+        c_i, c_ass_i = Candidates(base, L, ab_cut)
+        c = np.append(c, c_i)
+        c_ass = np.append(c_ass, c_ass_i)  
+        for j in range(0, c_ass.size):
+            for i in range(0,ab.shape[0]):
+                if (c_ass[j] > ab[i-1,1]) & (c_ass[j] < ab[i,0]):
+                    c_ass[j] = ab[i,0]
+                if (c_ass[j] < ab[0,0]):
+                    c_ass[j] = ab[0,0]      
+        ab_cut = ab_cut[:ab_cut.shape[0]-1]
+    return c, c_ass
+
+
 

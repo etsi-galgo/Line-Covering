@@ -35,15 +35,9 @@ def main():
     line, ones, ab = LineGenerate(lenght, m)
     L = 142
     
-    ab_cut = ab
-    c = np.empty(0)
-    while not (ab_cut.size == 0):
-        c = np.append(c, dp.Candidates(base, L, ab_cut))
-        ab_cut = ab_cut[:ab_cut.shape[0]-1]
-    
-    print(ab)
+    c, c_ass = dp.AllCandidates(base, L, ab)
     print(c)
-    
+    print(c_ass)
     #n, totalL = greedy.GreedyPP(base,line, ones,L)
     #print('Total number of tours:', n)
     #print('Total lenght:', totalL)
