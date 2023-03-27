@@ -87,4 +87,40 @@ def Recursion(c, ab, base, L):
         func2 = L + Recursion(c_ass, ab, base, L)
         
         return min(func2, min(func1))
+    
+def DynamicProgramming(c, ab, base, L):
+    c = np.sort(c)
+    E = np.zeros(c.size) # check if zeros are ok
+    
+    for k in range(0, c.size):
+        c_ass = FindAssociated(c[k], ab, base, L)
+    
+        j = np.arange(SegmentNumber(c_ass, ab), SegmentNumber(c[k], ab)+1)  
+    
+        if c_ass == ab[0,0]:
+            #print('caso 1')
+            E[k] = (c[k] - ab[0,0])
+            
+
+        elif c_ass in ab[1:,0]:
+            print('caso 2')
+            func = np.empty(0)
+            for i in j:
+                func = np.append(func, (c[k] - ab[i,0]) + E[c.tolist().index(ab[i-1,1])])
+            print(func)
+            E[k] = min(func)
+    
+        else: 
+            print('caso 3')
+            print(j)
+            func = np.empty(0)
+            for i in j:
+                func = np.append(func, (c[k] - ab[i,0]) + E[c.tolist().index(ab[i-1,1])])
+            print(func)
+            
+        
+            func2 = L + E[c.tolist().index(c_ass)]
+            E[k] = min(func2, min(func))
+            
+    return E
 
