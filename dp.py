@@ -124,3 +124,21 @@ def DynamicProgramming(c, ab, base, L):
             
     return E
 
+def FindCentralTours(c_left, c_right , base, L):
+    i = 0
+    j = 0
+    central_tours = np.empty((0,3))
+    tour_lenght = 0
+    while (tour_lenght <= L) and (j < c_left.size):
+        central_tours_1 = np.empty((0,3))
+        while (tour_lenght <= L) and (i < c_right.size):
+            dist_left = math.sqrt(c_left[j]**2+base[1]**2)
+            dist_right = math.sqrt(c_right[i]**2+base[1]**2)
+            tour_lenght = c_left[j] + c_right[i] + dist_left + dist_right
+            tour = np.array((c_left[j], c_right[i], tour_lenght)).reshape(1,3)
+            central_tours_1 = np.append(central_tours_1, tour, axis=0)
+            i += 1
+        central_tours = np.append(central_tours, central_tours_1, axis=0)
+        tour_lenght = 0
+        j += 1
+    return central_tours
