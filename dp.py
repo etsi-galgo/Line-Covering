@@ -138,12 +138,12 @@ def FindCentralTours(c_left, c_right , base, L):
 
 def OneSideDynamics(c, c_first, ab, base, L):
     E = np.zeros(c_first.size)
-    ab_i = ab.astype(np.float32)
+    ab_i = ab.astype(np.float64)
     for i in range(0, c_first.size):
         if c_first[i] != ab_i[0,1]:
             ab_i[0,0] = c_first[i]
         else:
-            ab_i = ab[ab[:,0]>c_first[i]]
+            ab_i = ab[ab[:,0]>c_first[i]].astype(np.float64)
         if (c[c>c_first[i]].size != 0):
             E[i] = DynamicProgramming(c[c>c_first[i]], ab_i, base, L) 
         else: E[i] = 0
