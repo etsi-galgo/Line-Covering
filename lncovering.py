@@ -35,12 +35,16 @@ def main():
     line, ones, ab = LineGenerate(lenght, m)
     L = 142
     
-    total_cost = dp.BothSidesDynamics(ab, base, L)
-    print(total_cost)
     
-    #n, totalL = greedy.GreedyPP(base,line, ones,L)
-    #print('Total number of tours:', n)
-    #print('Total lenght:', totalL)
+    total_cost = dp.BothSidesDynamics(ab, base, L)
+    
+    
+    print('Total lenght DP:', total_cost)
+    
+    n, totalL = greedy.GreedyPP(base,line, ones,L)
+    
+    print('Total number of tours:', n)
+    print('Total lenght Greedy:', totalL)
 
 
 if __name__ == "__main__":

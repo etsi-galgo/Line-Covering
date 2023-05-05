@@ -20,11 +20,9 @@ def FindTheFarthest(base,ones,first,last):
     if fdist > ldist:
         farthest = first
         dist = fdist
-        print('The first point of the first segment is the farthest')
     else:
         farthest = last
         dist = ldist
-        print('The last point of the last segment is the farthest')
     
     return farthest, dist
 
@@ -43,7 +41,6 @@ def Greedy(base,line,ones,L):
         n = 0
         totalL = 0
         while not covered:
-            print(ones)
             first = ones[0] # the first point of the first segment
             last = ones[ones.size-1] # the last point of the last segment
             farthest, far_dist = FindTheFarthest(base,ones,first,last)
@@ -223,8 +220,5 @@ def GreedyPP(base,line, ones,L):
             n += 1
             totalL += (lineL + a + b)
 
-            print('Tour', n ,'start:', farthest)
-            print('Tour', n ,' end:', x)   
-            print(ones)
         return n, totalL
         
