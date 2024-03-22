@@ -9,6 +9,7 @@ Created on Tue Mar 19 12:29:06 2024
 @author: Alina Kasiuk
 """
 import numpy as np
+import pandas as pd
 import line_generation
 import solver
 import minsum
@@ -54,12 +55,15 @@ if __name__ == "__main__":
             j+=X_cases
     
 
-
+    df = pd.DataFrame(columns=['Experiment N', '1st segment start',  'last segment end',
+                               'Base X', 'Base Y', 'Solver N Tours 1',
+                               'Solver N Tours 2', 'Solver Tour Length 1',
+                               'Solver Tour Length 2', 'Solver MinMax', 'DP N Tours', 'MinSum Length'])
     
-    # Segment coordinates and the set of points A used for linear problem formulation
     i=1
     for num in n[0]:
         for bb in (base[:50,:]):
+            # Segment coordinates and the set of points A used for linear problem formulation
             xy, a = line_generation.generate(length[0], num, bb)
             minL = 2*math.sqrt((max(bb[0], length[0]-bb[0]))**2+bb[1]**2)+1
             maxL = math.sqrt(bb[0]**2+bb[1]**2)+math.sqrt((length[0]-bb[0])**2+bb[1]**2)+length[0]
@@ -75,16 +79,28 @@ if __name__ == "__main__":
             print ("MinSum with DP result:")    
             if (xy[0,0]<0) and (xy[-1,1]>0):
                 Tour, TotalLenght = minsum.DP_both_sides(xy, bb, L)
-                i+=1
+                # MILP solving with pulp
+                print ("___________________")
+                print ("MILP solver results:")
+                NTour1 , Lenght1, NTour2 , Lenght2, Max_sum = solver.solver_results(num, a, xy, L, bb)
+                df.loc[i] = {'Experiment N':i, '1st segment start':xy[0,0], 
+                             'last segment end': xy[-1,1],
+                             'Base X': bb[0], 'Base Y': bb[1], 
+                             'Solver N Tours 1': NTour1,
+                             'Solver N Tours 2': NTour2,
+                             'Solver Tour Length 1': Lenght1,
+                             'Solver Tour Length 2': Lenght2,
+                             'Solver MinMax': Max_sum,
+                             'DP N Tours': Tour.shape[1],
+                             'MinSum Length': TotalLenght}
+                i+=1  
+                
+               
             else:
                 print ("TODO:One side case")
                 
         
-            # MILP solving with pulp
-            print ("___________________")
-            print ("MILP solver results:")
-                
-            solver.solver_results(num, a, xy, L, bb)
+
                 
             
                 

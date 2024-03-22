@@ -272,13 +272,8 @@ def DP_both_sides(ab, base, L):
         Tour = np.append(np.flip(Tour_left,1), Tour_right, axis = 1)
         
     else:  
-        print("Start right",StartPoints_right[d[0]])
-        print("End right",EndPoints_right[d[0]])
-        print("____________________________________________")
         Tour_right = join_tours(StartPoints_right[d[0]], EndPoints_right[d[0]])
         Tour_right = Tour_right[ ::-1, :]
-        print("Start left",StartPoints_left[c[0]])
-        print("End left",EndPoints_left[c[0]])
         Tour_left = -join_tours(StartPoints_left[c[0]], EndPoints_left[c[0]])
         Tour_central = np.array([[-central_tours[np.argmin(totalL),0], central_tours[np.argmin(totalL),1] ]]).reshape((2, 1))
         

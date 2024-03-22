@@ -145,6 +145,7 @@ def get_tours(A, cov_id, base):
 
     print('Total number of tours:', cov_id.shape[0])
     print('Total lenght:', totalLenght)
+    return cov_id.shape[0], totalLenght
     
     
 def solver_results(n, A, xy, L, base):
@@ -154,10 +155,12 @@ def solver_results(n, A, xy, L, base):
     
     print ("Drone 1 trajectory:")
     drone_1 = get_tour_index(Cover_1)
-    get_tours(A, drone_1, base)
+    NTour1 , Lenght1 = get_tours(A, drone_1, base)
     
     print ("___________________")
     print ("Drone 2 trajectory:")
     drone_2 = get_tour_index(Cover_2)
-    get_tours(A, drone_2, base)
+    NTour2 , Lenght2 = get_tours(A, drone_2, base)
+    return NTour1 , Lenght1, NTour2 , Lenght2, Max_sum
+    
     
