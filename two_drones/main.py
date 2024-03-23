@@ -13,8 +13,30 @@ import pandas as pd
 import line_generation
 import solver
 import minsum
-import time
+import datetime
 import math
+from sys import platform
+import os
+import distribute
+
+def _create_dir_win32(name):
+     directory="results\\{}\\".format(name)      
+     return directory
+ 
+
+def create_dir(name):
+    "Creating the folders to save results"
+    
+    # Folder path define for different platforms. '\\', '/' issue
+    if platform == "win32":
+        directory = _create_dir_win32(name)
+    else:
+        print('unknown OS')
+        
+    if not os.path.exists(directory):
+         os.makedirs(directory)
+         
+    return directory
 
 
 if __name__ == "__main__":
@@ -25,7 +47,7 @@ if __name__ == "__main__":
 
     
     # Number of segments
-    cases_per_level = 100
+    cases_per_level = 10
     n = np.empty((d_levels-2,cases_per_level)) 
     i=0
     for l in length:
@@ -58,11 +80,16 @@ if __name__ == "__main__":
     df = pd.DataFrame(columns=['Experiment N', '1st segment start',  'last segment end',
                                'Base X', 'Base Y', 'Solver N Tours 1',
                                'Solver N Tours 2', 'Solver Tour Length 1',
-                               'Solver Tour Length 2', 'Solver MinMax', 'DP N Tours', 'MinSum Length'])
+                               'Solver Tour Length 2', 'Solver MinMax', 'DP N Tours', 'MinSum Length',
+                               'Greedy N Tours 1', 'Greedy N Tours 2', 'Greedy Tour Length 1', 'Greedy Tour Length 2',
+                               'Greedy MinMax', 'Greedy Error'])
     
     i=1
-    for num in n[0]:
-        for bb in (base[:50,:]):
+    today = datetime.datetime.today().strftime("%Y-%m-%d-%H.%M")
+    path = create_dir(today)
+    j=1
+    for bb in (base[20:30,:]):
+        for num in n[0]:
             # Segment coordinates and the set of points A used for linear problem formulation
             xy, a = line_generation.generate(length[0], num, bb)
             minL = 2*math.sqrt((max(bb[0], length[0]-bb[0]))**2+bb[1]**2)+1
@@ -70,7 +97,7 @@ if __name__ == "__main__":
             # Maximum tour length:
             L = np.random.randint(minL,maxL)
             
-            # MinSum with dynamic prgramming
+            
             print ("Case N:", i) 
             print ("___________________")
             print ("Base coordinates:", bb) 
@@ -78,7 +105,12 @@ if __name__ == "__main__":
             print ("___________________")
             print ("MinSum with DP result:")    
             if (xy[0,0]<0) and (xy[-1,1]>0):
+                # MinSum with dynamic prgramming
                 Tour, TotalLenght = minsum.DP_both_sides(xy, bb, L)
+                
+                # Greedy distribution
+                Tour1, Tour2, M1, M2 = distribute.to_the_min_disribution(Tour, bb)
+                
                 # MILP solving with pulp
                 print ("___________________")
                 print ("MILP solver results:")
@@ -92,13 +124,22 @@ if __name__ == "__main__":
                              'Solver Tour Length 2': Lenght2,
                              'Solver MinMax': Max_sum,
                              'DP N Tours': Tour.shape[1],
-                             'MinSum Length': TotalLenght}
-                i+=1  
-                
-               
+                             'MinSum Length': TotalLenght,
+                             'Greedy N Tours 1': Tour1.shape[0],
+                             'Greedy N Tours 2': Tour2.shape[0],
+                             'Greedy Tour Length 1': M1,
+                             'Greedy Tour Length 2': M2,
+                             'Greedy MinMax': max(M1,M2),
+                             'Greedy Error': (max(M1,M2) - Max_sum)/L,  
+                             }
+                i+=1
             else:
-                print ("TODO:One side case")
-                
+                print ("TODO:One side case")            
+        df.to_csv (path+"expriment_base_"+str(bb[1])+".csv", sep=';', index = False, header=True)  
+        j+=1
+            
+          
+                  
         
 
                 
