@@ -88,7 +88,7 @@ if __name__ == "__main__":
     today = datetime.datetime.today().strftime("%Y-%m-%d-%H.%M")
     path = create_dir(today)
     j=1
-    for bb in (base[20:30,:]):
+    for bb in (base[22:23,:]):
         for num in n[0]:
             # Segment coordinates and the set of points A used for linear problem formulation
             xy, a = line_generation.generate(length[0], num, bb)
