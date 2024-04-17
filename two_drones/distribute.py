@@ -67,7 +67,8 @@ def to_the_min_disribution(Tour, base):
     print("T2 total length: M2 =", M2)   
     return Tour1, Tour2, M1, M2
 
-def get_subTour1(Tour, Tour1, base, L): 
+def get_subTour1(Tour, Tour1, base, L):
+    #TODO: Transpose Tour  
     T11 = np.empty(0)
     for tour in Tour1:
         if tour_lenght(tour, base)<L:

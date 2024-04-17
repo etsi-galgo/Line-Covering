@@ -21,10 +21,11 @@ def candidates(base, L, ab):
         # distance from the farthest point to greedy
         dist = (L**2-2*L*b)/(2*(L-b-xB))
         # greedy point coordinate
-        xA = int(xB-dist)
+        xA = xB-math.floor(dist)
   #      print("xB", xB)
   #      print("xA", xA)
         c = np.append(c, xA)
+        
         xB = xA
         for i in range(0,ab.shape[0]):
             if (xA > ab[i-1,1]) & (xA < ab[i,0]):
@@ -57,14 +58,13 @@ def find_associated(c, ab, base, L):
     b = math.sqrt(c**2+base[1]**2)
     # distance from the farthest point to greedy
     dist = (L**2-2*L*b)/(2*(L-b-c))
-    c_ass = c-dist
+    c_ass = c-math.floor(dist)
     for i in range(0,ab.shape[0]):
         if (c_ass > ab[i-1,1]) & (c_ass < ab[i,0]):
             c_ass = ab[i,0]
         if (c_ass < ab[0,0]):
             c_ass = ab[0,0]  
-        
-    return int(c_ass)
+    return c_ass
 
 def segment_number(c, ab):
     """
