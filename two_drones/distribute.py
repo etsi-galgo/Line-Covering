@@ -7,23 +7,7 @@ Created on Sat Mar 23 11:53:54 2024
 import numpy as np
 import math
 
-def find_the_farthest(base,first,last):
-    """
-    Looking for the farthest point from the base
-    """
-    # distances to the base station
-    fdist = math.sqrt(first**2+base[1]**2)
-    ldist = math.sqrt(last**2+base[1]**2)
 
-    # comparing the distances
-    if fdist > ldist:
-        farthest = first
-        dist = fdist
-    else:
-        farthest = last
-        dist = ldist
-    
-    return farthest, dist
 
 def tour_lenght(tour, base):
     dist_left = math.sqrt(tour[0]**2+base[1]**2)
@@ -31,182 +15,248 @@ def tour_lenght(tour, base):
     lenght = abs(tour[0]-tour[1]) + dist_left + dist_right
     return lenght
 
-def to_the_min_disribution(Tour, base):
-    Tour = np.transpose(Tour)
+def total_lenght(t_set, y_base):
+    total_l=0
+    for t in t_set:
+        total_l += tour_lenght(t, y_base)
+    return total_l   
+
+def distance(point, y_base):
+    """
+    Distances to the base station
+    """
+    dist = math.sqrt(point**2+y_base**2)
+    return dist 
+
+def to_the_min_disribution(Tour, y_base):
+    m = Tour.shape[0]-1
+    
     Tour1 = np.empty(0)
     Tour2 = np.empty(0)
-    M1 = 0
-    M2 = 0
+    l1 = 0
+    l2 = 0
+    
+    
     while Tour.size>1:
-        farthest, dist = find_the_farthest(base,Tour[0,0],Tour[Tour.shape[0]-1,1])
-        if farthest == Tour[0,0]:
-            if M1 < M2:
-                Tour1 = np.append(Tour1, Tour[0])
-                M1 += tour_lenght(Tour[0], base)
-            else:
-                Tour2 = np.append(Tour2, Tour[0])
-                M2 += tour_lenght(Tour[0], base)
+        #Find the farthest tour from the base:
+        if distance(Tour[0,0],y_base) >= distance(Tour[m,1],y_base):
+            farthest_tour = Tour[0]
             Tour = Tour[1:]
         else:
-            if M1 < M2:
-                Tour1 = np.append(Tour1, Tour[Tour.shape[0]-1])
-                M1 += tour_lenght(Tour[Tour.shape[0]-1], base)
-            else:
-                Tour2 = np.append(Tour2, Tour[Tour.shape[0]-1])
-                M2 += tour_lenght(Tour[Tour.shape[0]-1], base)
-            Tour = Tour[:Tour.shape[0]-1]
+            farthest_tour = Tour[m]
+            Tour = Tour[:m]
+        m -= 1
+        
+        #Add the farthest tour to the smallest set
+        if l1 < l2:
+            Tour1 = np.append(Tour1, farthest_tour)
+            l1 += tour_lenght(farthest_tour, y_base)
+        else:
+            Tour2 = np.append(Tour2, farthest_tour)
+            l2 += tour_lenght(farthest_tour, y_base)
+        
     Tour1 = Tour1.reshape(Tour1.shape[0]//2,2)
     Tour2 = Tour2.reshape(Tour2.shape[0]//2,2)
-    if M1 > M2:
+
+    # Make Tour2 always be the biggest
+    if l1 > l2:
         Tour1, Tour2 = Tour2, Tour1
-        M1, M2 = M2, M1
+        l1, l2 = l2, l1
 
     print("T1 =", Tour1)
-    print("T1 total length: M1 =", M1)
+    print("T1 total length: l1 =", l1)
     print("T2 =",Tour2)
-    print("T2 total length: M2 =", M2)   
-    return Tour1, Tour2, M1, M2
+    print("T2 total length: l2 =", l2)   
+    return Tour1, Tour2, l1, l2    
 
-def get_subTour1(Tour, Tour1, base, L):
-    #TODO: Transpose Tour  
-    T11 = np.empty(0)
-    for tour in Tour1:
-        if tour_lenght(tour, base)<L:
-            T11 = np.append(T11, tour)
-    T11 = T11.reshape(T11.shape[0]//2,2)
 
-    T1_right = np.empty(0)
-    T1_left = np.empty(0)
-    
-    for tour in T11:
-        a = np.where(Tour == tour)[0][0]
-        if a < Tour.shape[0]-1:
-            if (tour_lenght(Tour[a+1], base) >= L) and (Tour[a,1] == Tour[a+1,0]):
-                T1_right = np.append(T1_right, tour)
+def big_bro(t):
+    # Find a tour tour just one point bigger than a given
+    if (t[0]>0) and (t[1]>0): 
+        return [t[0]-1, t[1]]
+    if (t[0]<0) and (t[1]<0): 
+        return [t[0], t[1]+1]
+    if (t[0]<0) and (t[1]>0): 
+        if abs(t[0])>abs(t[1]):
+            return [t[0], t[1]+1]
+        else:
+            return [t[0]-1, t[1]]
+
+def candidates_to_cut(T2 ,l, y_base):
+    T_cut = np.empty(0)
+    for t2 in T2:
+        if (distance(t2[1], y_base) + distance(t2[0], y_base))<l:
+            T_cut = np.append(T_cut, t2)
+            T_cut = T_cut.reshape(T_cut.shape[0]//2,2)
+    return T_cut
+        
+def candidates_to_enlarge(T1, T2, L, y_base):
+    T_en_left = np.empty(0)
+    T_en_right = np.empty(0)
+    for t1 in T1:
+        for t2 in T2:
+            if (t1[0]<0) and (t1[0]==t2[1]) and (tour_lenght(big_bro(t2), y_base)>L) and (tour_lenght(big_bro(t1), y_base)<L):
+                T_en_left = np.append(T_en_left, t1)
+                T_en_left = T_en_left.reshape(T_en_left.shape[0]//2,2)
+            if (t1[1]>0) and (t1[1]==t2[0]) and (tour_lenght(big_bro(t2), y_base)>L) and (tour_lenght(big_bro(t1), y_base)<L):
+                T_en_right = np.append(T_en_right, t1)
+                T_en_right = T_en_right.reshape(T_en_right.shape[0]//2,2)
                 
-            if (tour_lenght(Tour[a-1], base) >= L) and (Tour[a,0] == Tour[a-1,0]):
-                T1_left = np.append(T1_left, tour)
-    
-    return T1_right.reshape(T1_right.shape[0]//2,2),  T1_left.reshape(T1_left.shape[0]//2,2)
+    return T_en_left, T_en_right
 
-def get_subTour2(Tour2, base, l):    
-    T2 = np.empty(0)
-    for tour in Tour2:
-        dist_left = math.sqrt(tour[0]**2+base[1]**2)
-        dist_right = math.sqrt(tour[1]**2+base[1]**2)
-        if (dist_left + dist_right)<l:
-            T2 = np.append(T2, tour)
-    return T2.reshape(T2.shape[0]//2,2)
+def cutting_improvement(t, l, y_base):
+    c = distance(t[0], y_base)
+    f = distance(t[1], y_base)
+    s = t[1]-t[0]
 
-def find_XR(tour, base,l):
-    if abs(tour[1]) > abs(tour[0]):
-        closest = abs(tour[0])
+    #Option 1: Left tour for T1
+    x1 = (l-c*2)/2
+    d1 = distance(t[0]+x1, y_base)
+    r1 = d1 - c - x1
+
+    #Option 2: Left tour for T2
+    x2 = (s*2+f*2-l)/2
+    d2 = distance(t[0]+x2, y_base)
+    r2 = d2 - s - f + x2
+
+    if r2<r1:
+        return x2,r2,2
     else:
-        closest = abs(tour[1])
-    
-    a = math.sqrt(closest**2+base[1]**2)
-    x = (l-a*2)/2
-    d = math.sqrt((closest+x)**2+base[1]**2)
-    r = d - a - x
-    return x, r
+        return x1,r1,1
 
-def find_XS(tour, base,l):
-    if abs(tour[1]) > abs(tour[0]):
-        farthest = abs(tour[1])
-    else:
-        farthest = abs(tour[0])  
+def enlarging_improvement(farthest, closest, l, L, y_base):
     x = l/2
-    c = math.sqrt(farthest**2+base[1]**2)
-    d = math.sqrt((farthest+x)**2+base[1]**2)
-    s = d - c - x
-    return x, s
+    f = distance(farthest, y_base)
+    d = distance(farthest+x, y_base)
+    c = distance(closest, y_base)
+    
+    if (farthest+x-closest+c+d > L):
+        dist = 0.5*(L**2-2*L*c)/(closest+L-c)
+        x=dist+closest-farthest
+        d = distance(farthest+x, y_base)
+    s = d-f-x
+    
+    return x,s
+
+def cutting(T1, T2, win_tour, x):
+    #Option 1: Left tour for T1
+    for t2 in T2:
+        if t2[0] == win_tour[0]:
+            start = t2[0]
+            t2[0] = t2[0]+np.round(x)
+            T1 = np.append(T1, [start, t2[0]])
+            T1 = T1.reshape(T1.shape[0]//2,2)
+    return T1, T2
+
+def reversed_cutting(T1, T2, win_tour, x):
+    #Option 2: Left tour for T2
+    for t2 in T2:
+        if t2[0] == win_tour[0]:
+            end = t2[1]
+            t2[1] = t2[0]+np.round(x)
+            T1 = np.append(T1, [t2[1], end])
+            T1 = T1.reshape(T1.shape[0]//2,2) 
+    return T1, T2
+
+def remove_enlarged(t, T):
+    for i in range(T.shape[0]):
+        if (T[i,0]==t[0]) or (T[i,1]==t[1]):
+            T = np.delete(T,i,0)
+    return T
+
+def enlarging_right(T1, T2, T_enlarge_right, win_tour, x):
+    for t1 in T1:
+        for t2 in T2:
+            if (t1[0] == win_tour[0]) and (t1[1]==t2[0]):
+                t1[1] = t1[1]+np.floor(x)
+                t2[0] = t2[0]+np.floor(x)
+                
+                # Remove t1 from the set T_enlarge_right
+                T_enlarge_right = remove_enlarged(t1, T_enlarge_right)
+                
+    return T1, T2, T_enlarge_right
+
+def enlarging_left(T1, T2, T_enlarge_left, win_tour, x):
+    for t1 in T1:
+        for t2 in T2:
+            if (t1[0] == win_tour[0]) and (t1[0]==t2[1]):
+                t1[0] = t1[0]-np.floor(x)
+                t2[1] = t2[1]-np.floor(x)
+                
+                # Remove t1 from the set T_enlarge_left
+                T_enlarge_left = remove_enlarged(t1, T_enlarge_left)
+    return T1, T2, T_enlarge_left   
+
+def candidates_table(T_cut, T_enlarge_right, T_enlarge_left, l, L, y_base):
+    Table = np.empty(0)
+    # Find the improvement after each possible cutting
+    for t in T_cut:
+        x_cut, d_cut, idx = cutting_improvement(t,l, y_base)
+        Table = np.append(Table, np.array([t[0],t[1], x_cut, d_cut, idx]))
+    
+    # Find the improvement after each possible enlarging
+    if T_enlarge_left.size>0:
+        for t in T_enlarge_right:
+            farthest = abs(t[1])
+            closest = abs(t[0])
+            x_enlarge_right, d_enlarge_right  = enlarging_improvement(farthest, closest,l, L, y_base)
+            Table = np.append(Table, np.array([t[0],t[1], x_enlarge_right, d_enlarge_right, 3]))
+        
+    if T_enlarge_left.size>0:
+        for t in T_enlarge_left:
+            farthest = abs(t[0])
+            closest = abs(t[1])
+            x_enlarge_left, d_enlarge_left  = enlarging_improvement(farthest, closest,l,L, y_base)
+            Table = np.append(Table, np.array([t[0],t[1], x_enlarge_left, d_enlarge_left, 4]))
+    Table = Table.reshape(Table.shape[0]//5,5)
+    return Table
+
 
 def cut_and_enlarge(Tour, base, L):
-    # STEP 1: MinSum
-    # STEP 2
-    Tour = np.sort(Tour, axis = 0)
-    # STEP 3
-    Tour1, Tour2, M1, M2 = to_the_min_disribution(Tour, base)
-    # STEP 4
-    l = M2 - M1
-    # STEP 5
-    sub_Tour2 = get_subTour2(Tour2, base, l)
-    # STEP 6
-    sub_Tour1_right,  sub_Tour1_left = get_subTour1(Tour, Tour1, base, L)
-    # STEP 7:
-    xr = np.empty(0)
-    r = np.empty(0)
-    for tour in sub_Tour2:    
-        x_k, r_k = find_XR(tour, base,l)
-        xr = np.append(xr, x_k)
-        r = np.append(r, r_k)
     
-    # STEP 8
-    xs = np.empty(0)
-    s = np.empty(0)
-    for tour in sub_Tour1_right:
-        x_n, s_n = find_XS(tour, base,l)
-        xs_right = np.append (xs,  x_n)
-        s = np.append(s, s_n)
+    # Step 2: Distribute T between two sets T1  y T2  such as l(T2)>l(T1)
+    Tour1, Tour2, l1, l2 = to_the_min_disribution(Tour, base[1]) 
     
-    for tour in sub_Tour1_left:
-        x_n, s_n = find_XS(tour, base,l)
-        xs_left = np.append (xs,  x_n)
-        s = np.append(s, s_n)    
+    # Step 3: Get the sets of candidates to enlarge:
+    T_enlarge_left, T_enlarge_right = candidates_to_enlarge(Tour1, Tour2, L, base[1])
+    
+    # Step 4: Improve until l(T2)=l(T1)
+    l= l2-l1
+    while l>0:
+        # Get the set of candidates to cut:
+        T_cut = candidates_to_cut(Tour2, l, base[1])
+                
+        # Find the table of candidates to improve
+        # | t(0) | t(1) | x | d | type |
+        Table = candidates_table(T_cut, T_enlarge_right, T_enlarge_left, l, L, base[1])
+        print(Table)    
+        # Finish if no candidates are found
+        if Table.size == 0:
+            break
+    
+        # Find a candidate that gives the best improvement
+        for tab in Table:
+            if tab[3]==min(Table[:,3]):
+                winner = tab
+        win_tour = np.transpose([winner[0],winner[1]])
         
+        # Apply cutting
+        if winner[4]==1:
+            Tour1, Tour2 = cutting(Tour1, Tour2, win_tour, winner[2])
+        if winner[4]==2:
+            Tour1, Tour2 = reversed_cutting(Tour1, Tour2, win_tour, winner[2])  
     
-    # STEP 9
-    if (s.size > 0) and (r.size > 0):
-        minrs = min(np.min(r), np.min(s))
-    else: 
-        if r.size > 0:
-            minrs = np.min(r)
-        else:
-            if s.size > 0:
-                minrs = np.min(s)
-            else:
-                minrs = 0       
+        # Apply enlarging
+        if winner[4]==3:
+            Tour1, Tour2, T_enlarge_right = enlarging_right(Tour1, Tour2, T_enlarge_right, win_tour, winner[2])       
+        if winner[4]==4:
+            Tour1, Tour2, T_enlarge_left = enlarging_left(Tour1, Tour2, T_enlarge_left, win_tour, winner[2]) 
+                    
+        l1 = total_lenght(Tour1, base[1])
+        l2 = total_lenght(Tour2, base[1])
+        l= l2-l1
     
-    # STEP 10
-    # Cutting
-
-    if r.size > 0:
-        if minrs != 0:
-            if minrs == np.min(r):
-                for i in range(Tour2.shape[0]):
-                    if Tour2[i,0] == sub_Tour2[sub_Tour2.shape[0]-1,0]:
-                        ind=i
-                if abs(Tour2[ind, 1]) < abs(Tour2[ind, 0]):
-                    a = Tour2[ind, 1]
-                    Tour2[ind, 1] = Tour2[ind, 1] - int(xr[sub_Tour2.shape[0]-1] )
-                    newTour = np.array([Tour2[ind, 1], a])        
-                else:
-                    a = Tour2[ind, 0]
-                    Tour2[ind, 0] = Tour2[ind, 0] + int(xr[sub_Tour2.shape[0]-1]) 
-                    newTour = np.array([a, Tour2[ind, 0]])
-                Tour1 = np.append(Tour1, newTour)
-                
-            if Tour1.shape[0]>1:
-                Tour1 = Tour1.reshape(Tour1.shape[0]//2,2)  
-    
-    # STEP 11 #Check
-    # Enlarge
-    #if s.size > 0:
-    #    if minrs != 0:
-    #        if minrs == np.min(s):
-    #            Tour1[0,1] = Tour1[0,1]+xs_right[0]
-    #            Tour2[0,0] = Tour2[0,0]+xs_right[0]
-                
-            
-                
-    Tour1Lenght = 0
-    Tour2Lenght = 0
-    for tour in Tour1:
-        Tour1Lenght += tour_lenght(tour, base)
-    for tour in Tour2:
-        Tour2Lenght += tour_lenght(tour, base)         
-    
-    return Tour1, Tour2, Tour1Lenght, Tour2Lenght
+    return Tour1, Tour2, l1, l2
     
     
     
