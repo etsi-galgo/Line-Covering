@@ -5,28 +5,8 @@ Created on Sat Mar 23 11:53:54 2024
 @author: Alina Kasiuk
 """
 import numpy as np
-import math
-
-
-
-def tour_lenght(tour, base):
-    dist_left = math.sqrt(tour[0]**2+base[1]**2)
-    dist_right = math.sqrt(tour[1]**2+base[1]**2)
-    lenght = abs(tour[0]-tour[1]) + dist_left + dist_right
-    return lenght
-
-def total_lenght(t_set, y_base):
-    total_l=0
-    for t in t_set:
-        total_l += tour_lenght(t, y_base)
-    return total_l   
-
-def distance(point, y_base):
-    """
-    Distances to the base station
-    """
-    dist = math.sqrt(point**2+y_base**2)
-    return dist 
+from utils import distance, tour_lenght, total_lenght, big_bro
+ 
 
 def to_the_min_disribution(Tour, y_base):
     m = Tour.shape[0]-1
@@ -36,10 +16,9 @@ def to_the_min_disribution(Tour, y_base):
     l1 = 0
     l2 = 0
     
-    
     while Tour.size>1:
         #Find the farthest tour from the base:
-        if distance(Tour[0,0],y_base) >= distance(Tour[m,1],y_base):
+        if distance(Tour[0,0], y_base) >= distance(Tour[m,1],y_base):
             farthest_tour = Tour[0]
             Tour = Tour[1:]
         else:
@@ -61,26 +40,9 @@ def to_the_min_disribution(Tour, y_base):
     # Make Tour2 always be the biggest
     if l1 > l2:
         Tour1, Tour2 = Tour2, Tour1
-        l1, l2 = l2, l1
-
-    print("T1 =", Tour1)
-    print("T1 total length: l1 =", l1)
-    print("T2 =",Tour2)
-    print("T2 total length: l2 =", l2)   
+        l1, l2 = l2, l1 
     return Tour1, Tour2, l1, l2    
 
-
-def big_bro(t):
-    # Find a tour tour just one point bigger than a given
-    if (t[0]>0) and (t[1]>0): 
-        return [t[0]-1, t[1]]
-    if (t[0]<0) and (t[1]<0): 
-        return [t[0], t[1]+1]
-    if (t[0]<0) and (t[1]>0): 
-        if abs(t[0])>abs(t[1]):
-            return [t[0], t[1]+1]
-        else:
-            return [t[0]-1, t[1]]
 
 def candidates_to_cut(T2 ,l, y_base):
     T_cut = np.empty(0)
@@ -228,8 +190,7 @@ def cut_and_enlarge(Tour, base, L):
                 
         # Find the table of candidates to improve
         # | t(0) | t(1) | x | d | type |
-        Table = candidates_table(T_cut, T_enlarge_right, T_enlarge_left, l, L, base[1])
-        print(Table)    
+        Table = candidates_table(T_cut, T_enlarge_right, T_enlarge_left, l, L, base[1])   
         # Finish if no candidates are found
         if Table.size == 0:
             break

@@ -8,8 +8,8 @@ Created on Tue Mar 19 12:44:42 2024
 """
 
 import numpy as np
-import math
 import pulp
+from utils import perimeter
 
 def prepare_data(a, base):
     # The set Beta of distances from the base station to all points in A:
@@ -127,40 +127,31 @@ def get_tour_index(cov):
     T = np.transpose(np.array([p,q]))
     return T
 
-def perimeter(point1, point2, base):
-    return max(point1, point2) - min(point1, point2) + math.sqrt(point1**2+base[1]**2) + math.sqrt(point2**2+base[1]**2)
 
 def get_tours(A, cov_id, base):
     """
-    Printing the trajectory details for each drone
+    Each drone tour details
     """
-    
+    T = np.empty(0)
     totalLenght = 0
     for i in range(cov_id.shape[0]):
-        print('Tour', i+1, 'start:', A[cov_id[i,0]])
-        print('Tour', i+1, 'end:', A[cov_id[i,1]])
-        T_lenght = perimeter(A[cov_id[i,0]], A[cov_id[i,1]], base)
-        print('Tour', i+1, 'lenght:', T_lenght)
+        T = np.append(T, [A[cov_id[i,0]], A[cov_id[i,1]]])
+        T = T.reshape(T.shape[0]//2,2)
+        
+        T_lenght = perimeter(A[cov_id[i,0]], A[cov_id[i,1]], base[1])
         totalLenght += T_lenght
-
-    print('Total number of tours:', cov_id.shape[0])
-    print('Total lenght:', totalLenght)
-    return cov_id.shape[0], totalLenght
+        
+    return T, cov_id.shape[0], totalLenght
     
     
 def solver_results(n, A, xy, L, base):
     Max_sum, Cover_1, Cover_2 = minmax_problem(n, xy, A, L, base)
     
-    print("the Max trajectory lenght:", Max_sum)
-    
-    print ("Drone 1 trajectory:")
     drone_1 = get_tour_index(Cover_1)
-    NTour1 , Lenght1 = get_tours(A, drone_1, base)
+    Tour1, NTour1 , Lenght1 = get_tours(A, drone_1, base)
     
-    print ("___________________")
-    print ("Drone 2 trajectory:")
     drone_2 = get_tour_index(Cover_2)
-    NTour2 , Lenght2 = get_tours(A, drone_2, base)
-    return NTour1 , Lenght1, NTour2 , Lenght2, Max_sum
+    Tour2, NTour2 , Lenght2 = get_tours(A, drone_2, base)
+    return Tour1, Tour2, Lenght1, Lenght2, Max_sum
     
     

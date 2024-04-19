@@ -7,6 +7,7 @@ Created on Tue Mar 19 13:06:59 2024
 
 import numpy as np
 import math
+from utils import perimeter
 
 def candidates(base, L, ab):
     """
@@ -22,8 +23,6 @@ def candidates(base, L, ab):
         dist = (L**2-2*L*b)/(2*(L-b-xB))
         # greedy point coordinate
         xA = xB-math.floor(dist)
-  #      print("xB", xB)
-  #      print("xA", xA)
         c = np.append(c, xA)
         
         xB = xA
@@ -34,9 +33,6 @@ def candidates(base, L, ab):
                 on_gap = True 
     c = c[:c.size-1]
     return c
-
-def perimeter(point1, point2, base):
-    return max(point1, point2) - min(point1, point2) + math.sqrt(point1**2+base[1]**2) + math.sqrt(point2**2+base[1]**2)
 
 def all_candidates(base, L, ab):
     """
@@ -136,7 +132,7 @@ def DP_one_side(c, ab, base, L):
         j = np.arange(segment_number(c_ass, ab), segment_number(c[k], ab)+1)  
         
         if c_ass == ab[0,0]:
-            E[k] = perimeter(c[k], ab[0,0], base)  
+            E[k] = perimeter(c[k], ab[0,0], base[1])  
 
             
             Start_Points[k,0] = c[k]
@@ -148,7 +144,7 @@ def DP_one_side(c, ab, base, L):
             
             func = np.empty(0)
             for i in j:
-                func = np.append(func, perimeter(c[k], ab[i,0], base) + E[c.tolist().index(ab[i-1,1])])
+                func = np.append(func, perimeter(c[k], ab[i,0], base[1]) + E[c.tolist().index(ab[i-1,1])])
             E[k] = min(func)
             index_min = np.argmin(func)+j[0]
             
@@ -162,7 +158,7 @@ def DP_one_side(c, ab, base, L):
             func = np.empty(0)
             if (c_ass < ab[segment_number(c[k], ab),0]): 
                 for i in j[1:]:
-                    func = np.append(func, perimeter(c[k], ab[i,0], base) + E[c.tolist().index(ab[i-1,1])])  
+                    func = np.append(func, perimeter(c[k], ab[i,0], base[1]) + E[c.tolist().index(ab[i-1,1])])  
             else:
                 func = [1000000.0]
             func2 = L + E[c.tolist().index(c_ass)]
@@ -281,16 +277,6 @@ def DP_both_sides(ab, base, L):
         Tour = np.append(Tour, Tour_right, axis = 1)
         
     TotalLenght = min((E_left_max + E_right_max), min(totalL)) 
-    TotalLenght_calc = 0
-    for i in range(Tour.shape[1]):
-        print('Tour', i+1, 'start:', Tour[0,i])
-        print('Tour', i+1, 'end:', Tour[1,i])
-        print('Tour', i+1, 'length:', perimeter(Tour[0,i], Tour[1,i], base))
-        TotalLenght_calc+=perimeter(Tour[0,i], Tour[1,i], base)
-    print('Total number of tours:', Tour.shape[1])
     
-    print('Total length:', TotalLenght)
-    print('Check:', TotalLenght_calc==TotalLenght)
-    
-    return Tour, TotalLenght        
+    return np.transpose(Tour), TotalLenght        
 
