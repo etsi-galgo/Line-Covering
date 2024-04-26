@@ -18,6 +18,8 @@ from sys import platform
 import os
 import distribute
 from utils import max_tour, tour_lenght
+import time
+
 
 def _create_dir_win32(name):
      directory="results\\{}\\".format(name)      
@@ -105,17 +107,19 @@ if __name__ == "__main__":
     exp_N = 20
     
     # Discretization level
-    d_levels= 2
-    length = [10**i for i in range(4,d_levels+4)] # The line length (total number of single points located on a line) 
+    d_levels= 1
+    length = [30**i for i in range(2,d_levels+2)] # The line length (total number of single points located on a line) 
     
     # Base height levels    
     Y_base = [2**i for i in range(-2,4)]
     
     j=0
+    
+    
     for l in length: # For every discretization level
         for Y in Y_base:  # For every base height 
             for exp in range(exp_N): # Make exp_N experiments
-            
+                tic = time.perf_counter()
                 n = np.random.randint(1,l/5) # Get number of segments randomly
                 X = np.random.randint(0,l) # Get base coordinate on X axis randomly
                 base = np.array((X,l*Y)) # Base coordinates proportioned
@@ -135,7 +139,9 @@ if __name__ == "__main__":
                     # Cutting and enlarging
                     Tour1_ce, Tour2_ce, M1_ce, M2_ce = distribute.cut_and_enlarge(Tour, base, L)
                     # MILP solving with pulp
+                    tic_solver = time.perf_counter()
                     Tour1_solv, Tour2_solv, M1_solv, M2_solv, Max_sum = solver.solver_results(n, a, xy, L, base)
+                    toc_solver = time.perf_counter()
                     
                     print_results(xy, base, L, Tour, TotalLenght, Tour1, Tour2, M1, M2,
                                       Tour1_ce, Tour2_ce, M1_ce, M2_ce, Tour1_solv, Tour2_solv,
@@ -168,7 +174,12 @@ if __name__ == "__main__":
                     j+=1
                 else:
                     print ("TODO:One side case")   
-                    
+                toc = time.perf_counter()
+                solver_dur = toc_solver - tic_solver 
+                total_dur = toc - tic
+                print("Experiment duration:", total_dur)
+                print("Solver duration:", solver_dur)
+                
             df.to_csv (path+"experiment_"+str(l)+"points_"+str(base[1])+"height.csv", sep=';', index = False, header=True) 
                 
             
