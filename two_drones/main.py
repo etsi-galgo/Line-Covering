@@ -11,7 +11,7 @@ Created on Tue Mar 19 12:29:06 2024
 import numpy as np
 import pandas as pd
 import line_generation
-import solver
+import solver_gurobi
 import minsum
 import datetime
 from sys import platform
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     
     # Discretization level
     d_levels= 1
-    length = [30**i for i in range(2,d_levels+2)] # The line length (total number of single points located on a line) 
+    length = [10**i for i in range(3,d_levels+3)] # The line length (total number of single points located on a line) 
     
     # Base height levels    
     Y_base = [2**i for i in range(-2,4)]
@@ -140,7 +140,7 @@ if __name__ == "__main__":
                     Tour1_ce, Tour2_ce, M1_ce, M2_ce = distribute.cut_and_enlarge(Tour, base, L)
                     # MILP solving with pulp
                     tic_solver = time.perf_counter()
-                    Tour1_solv, Tour2_solv, M1_solv, M2_solv, Max_sum = solver.solver_results(n, a, xy, L, base)
+                    Tour1_solv, Tour2_solv, M1_solv, M2_solv, Max_sum = solver_gurobi.solver_results(n, a, xy, L, base)
                     toc_solver = time.perf_counter()
                     
                     print_results(xy, base, L, Tour, TotalLenght, Tour1, Tour2, M1, M2,
