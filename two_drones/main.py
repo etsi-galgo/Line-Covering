@@ -103,87 +103,77 @@ if __name__ == "__main__":
     today = datetime.datetime.today().strftime("%Y-%m-%d-%H.%M")
     path = create_dir(today)
 
-    # Number of experiments
-    exp_N = 20
     
-    # Discretization level
-    d_levels= 1
-    length = [10**i for i in range(3,d_levels+3)] # The line length (total number of single points located on a line) 
+    exp_N = 1 # Number of experiments
     
-    # Base height levels    
-    Y_base = [2**i for i in range(-2,4)]
+    d = 900 # Discretization level
     
-    j=0
-    
-    
-    for l in length: # For every discretization level
-        for Y in Y_base:  # For every base height 
-            for exp in range(exp_N): # Make exp_N experiments
-                tic = time.perf_counter()
-                n = np.random.randint(1,l/5) # Get number of segments randomly
-                X = np.random.randint(0,l) # Get base coordinate on X axis randomly
-                base = np.array((X,l*Y)) # Base coordinates proportioned
-                L = max_tour(l,base) #Get maximum tour length randomly
-                
-                
-                # Generate a random line of segments
-                # Output the segments coordinates and the set of points A used for linear problem formulation
-                xy, a = line_generation.generate(l, n, base)
-                
-       
-                if (xy[0,0]<0) and (xy[-1,1]>0):
-                    # MinSum with dynamic programming
-                    Tour, TotalLenght = minsum.DP_both_sides(xy, base, L)
-                    # Greedy distribution
-                    Tour1, Tour2, M1, M2 = distribute.to_the_min_disribution(Tour, base[1])
-                    # Cutting and enlarging
-                    Tour1_ce, Tour2_ce, M1_ce, M2_ce = distribute.cut_and_enlarge(Tour, base, L)
-                    # MILP solving with pulp
-                    tic_solver = time.perf_counter()
-                    Tour1_solv, Tour2_solv, M1_solv, M2_solv, Max_sum = solver_gurobi.solver_results(n, a, xy, L, base)
-                    toc_solver = time.perf_counter()
-                    
-                    print_results(xy, base, L, Tour, TotalLenght, Tour1, Tour2, M1, M2,
-                                      Tour1_ce, Tour2_ce, M1_ce, M2_ce, Tour1_solv, Tour2_solv,
-                                      M1_solv, M2_solv, Max_sum)
+    for exp in range(exp_N): # Make exp_N experiments
+        tic = time.perf_counter()
+        n = np.random.randint(1,100) # Get number of segments randomly
+        X = np.random.randint(0,d) # Get base coordinate on X axis randomly
+        Y = np.random.randint(0,10*d) # Get base coordinate on X axis randomly
+        base = np.array((X,d*Y)) # Base coordinates proportioned
+        L = max_tour(d,base) #Get maximum tour length randomly
         
-                    df.loc[j] = {'Discretization':l, 'Experiment N':exp,
-                                 'Number of segments': n,
-                                 '1st segment start':xy[0,0], 'last segment end': xy[-1,1],
-                                 'Base X': base[0], 'Base Y': base[1], 'Max Lenght':L,
-                                 'Solver N Tours 1': Tour1_solv.shape[0],
-                                 'Solver N Tours 2': Tour2_solv.shape[0],
-                                 'Solver Tour Length 1': M1_solv,
-                                 'Solver Tour Length 2': M2_solv,
-                                 'Solver MinMax': Max_sum,
-                                 'DP N Tours': Tour.shape[1],
-                                 'MinSum Length': TotalLenght,
-                                 'Greedy N Tours 1': Tour1.shape[0],
-                                 'Greedy N Tours 2': Tour2.shape[0],
-                                 'Greedy Tour Length 1': M1,
-                                 'Greedy Tour Length 2': M2,
-                                 'Greedy MinMax': max(M1,M2),
-                                 'Greedy Error': (max(M1,M2) - Max_sum)/L,                              
-                                 'Cut/Enlarge N Tours 1': Tour1_ce.shape[0],
-                                 'Cut/Enlarge N Tours 2': Tour2_ce.shape[0],
-                                 'Cut/Enlarge Tour Length 1': M1_ce,
-                                 'Cut/Enlarge Tour Length 2': M2_ce,
-                                 'Cut/Enlarge MinMax': max(M1_ce,M2_ce),
-                                 'Cut/Enlarge Error': (max(M1_ce,M2_ce) - Max_sum)/L,
-                                 }
-                    j+=1
-                else:
-                    print ("TODO:One side case")   
-                toc = time.perf_counter()
-                solver_dur = toc_solver - tic_solver 
-                total_dur = toc - tic
-                print("Experiment duration:", total_dur)
-                print("Solver duration:", solver_dur)
-                
-            df.to_csv (path+"experiment_"+str(l)+"points_"+str(base[1])+"height.csv", sep=';', index = False, header=True) 
-                
+        
+        # Generate a random line of segments
+        # Output the segments coordinates and the set of points A used for linear problem formulation
+        xy, a = line_generation.generate(d, n, base)
+        
+   
+        if (xy[0,0]<0) and (xy[-1,1]>0):
+            # MinSum with dynamic programming
+            Tour, TotalLenght = minsum.DP_both_sides(xy, base, L)
+            # Greedy distribution
+            Tour1, Tour2, M1, M2 = distribute.to_the_min_disribution(Tour, base[1])
+            # Cutting and enlarging
+            Tour1_ce, Tour2_ce, M1_ce, M2_ce = distribute.cut_and_enlarge(Tour, base, L)
+            # MILP solving with pulp
+            tic_solver = time.perf_counter()
+            Tour1_solv, Tour2_solv, M1_solv, M2_solv, Max_sum = solver_gurobi.solver_results(n, a, xy, L, base)
+            toc_solver = time.perf_counter()
             
-          
+            print_results(xy, base, L, Tour, TotalLenght, Tour1, Tour2, M1, M2,
+                              Tour1_ce, Tour2_ce, M1_ce, M2_ce, Tour1_solv, Tour2_solv,
+                              M1_solv, M2_solv, Max_sum)
+
+            df.loc[exp] = {'Discretization':d, 'Experiment N':exp,
+                         'Number of segments': n,
+                         '1st segment start':xy[0,0], 'last segment end': xy[-1,1],
+                         'Base X': base[0], 'Base Y': base[1], 'Max Lenght':L,
+                         'Solver N Tours 1': Tour1_solv.shape[0],
+                         'Solver N Tours 2': Tour2_solv.shape[0],
+                         'Solver Tour Length 1': M1_solv,
+                         'Solver Tour Length 2': M2_solv,
+                         'Solver MinMax': Max_sum,
+                         'DP N Tours': Tour.shape[1],
+                         'MinSum Length': TotalLenght,
+                         'Greedy N Tours 1': Tour1.shape[0],
+                         'Greedy N Tours 2': Tour2.shape[0],
+                         'Greedy Tour Length 1': M1,
+                         'Greedy Tour Length 2': M2,
+                         'Greedy MinMax': max(M1,M2),
+                         'Greedy Error': (max(M1,M2) - Max_sum)/L,                              
+                         'Cut/Enlarge N Tours 1': Tour1_ce.shape[0],
+                         'Cut/Enlarge N Tours 2': Tour2_ce.shape[0],
+                         'Cut/Enlarge Tour Length 1': M1_ce,
+                         'Cut/Enlarge Tour Length 2': M2_ce,
+                         'Cut/Enlarge MinMax': max(M1_ce,M2_ce),
+                         'Cut/Enlarge Error': (max(M1_ce,M2_ce) - Max_sum)/L,
+                         }
+        else:
+            print ("TODO:One side case")   
+        toc = time.perf_counter()
+        solver_dur = toc_solver - tic_solver 
+        total_dur = toc - tic
+        print("Experiment duration:", total_dur)
+        print("Solver duration:", solver_dur)
+        
+    df.to_csv (path+"experiment_"+str(d)+"points_"+str(base[1])+"height.csv", sep=';', index = False, header=True) 
+            
+        
+      
                   
         
 

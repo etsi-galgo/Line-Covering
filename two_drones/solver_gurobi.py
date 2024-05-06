@@ -38,8 +38,8 @@ def minmax_problem(n, xy, A, L, base):
         Z_1 = []
         Z_2 = [] 
         for i in range(A.size):
-            z_i_1 = [m.addVar(vtype = GRB.BINARY,  name = f'z1_{i}_{j}') for j in range(i,A.size)]
-            z_i_2 = [m.addVar(vtype = GRB.BINARY,  name = f'z2_{i}_{j}') for j in range(i,A.size)]
+            z_i_1 = [m.addVar(vtype = GRB.BINARY,  name = f'z1_{i}_{j}') for j in range(i+1,A.size)]
+            z_i_2 = [m.addVar(vtype = GRB.BINARY,  name = f'z2_{i}_{j}') for j in range(i+1,A.size)]
             Z_1.append(z_i_1)
             Z_2.append(z_i_2)
     
@@ -55,18 +55,18 @@ def minmax_problem(n, xy, A, L, base):
         Tours_1 = []
         Tours_2 = []
         for i in range(A.size):
-            for j in range(i, A.size):
-                Tours_1.append(Z_1[i][j-i]*C[i,j])
-                Tours_2.append(Z_2[i][j-i]*C[i,j])
+            for j in range(i+1, A.size):
+                Tours_1.append(Z_1[i][j-i-1]*C[i,j])
+                Tours_2.append(Z_2[i][j-i-1]*C[i,j])
                 
         m.addConstr(sum(Tours_1) <= T, "minmax1") 
         m.addConstr(sum(Tours_2) <= T, "minmax2") 
     
         # Tour length limit
         for i in range(A.size):
-            for j in range(i, A.size):
-                m.addConstr(Z_1[i][j-i]*C[i,j] <= L, "length1")
-                m.addConstr(Z_2[i][j-i]*C[i,j] <= L, "length2")
+            for j in range(i+1, A.size):
+                m.addConstr(Z_1[i][j-i-1]*C[i,j] <= L, "length1")
+                m.addConstr(Z_2[i][j-i-1]*C[i,j] <= L, "length2")
 
         # Segment covering condition
         finseg=np.zeros(A.size-1)
@@ -84,8 +84,8 @@ def minmax_problem(n, xy, A, L, base):
             for i in range(A.size):
                 for j in range(i+1, A.size):
                     if q>=i and q<j:
-                        Owner_1_q.append(Z_1[i][j-i])
-                        Owner_2_q.append(Z_2[i][j-i])
+                        Owner_1_q.append(Z_1[i][j-i-1])
+                        Owner_2_q.append(Z_2[i][j-i-1])
             m.addConstr(sum(Owner_1_q) == S_1[q], "cover1")
             m.addConstr(sum(Owner_2_q) == S_2[q], "cover2")
             
@@ -96,6 +96,8 @@ def minmax_problem(n, xy, A, L, base):
         Max_sum = m.ObjVal
         Cover_1 = [s1.x for s1 in S_1]
         Cover_2 = [s2.x for s2 in S_2]
+        
+        print ("Number of variables:", len(m.getVars()))
             
         return Max_sum, Cover_1, Cover_2
     
