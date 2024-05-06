@@ -40,12 +40,12 @@ def create_dir(name):
          
     return directory
 
-def print_results(xy, base, L, Tour, TotalLenght, Tour1, Tour2, M1, M2,
+def print_results(d, xy, base, L, Tour, TotalLenght, Tour1, Tour2, M1, M2,
                   Tour1_ce, Tour2_ce, M1_ce, M2_ce, Tour1_solv, Tour2_solv,
                   M1_solv, M2_solv, Max_sum):
     print ("Experiment N:", exp) 
     print ("___________________")
-    print ("Number of points on the line (discretization):", l) 
+    print ("Number of points on the line (discretization):", d) 
     print ("Base coordinates:", base) 
     print ("Max Lenght:", L)                     
     print ("___________________")
@@ -106,13 +106,13 @@ if __name__ == "__main__":
     
     exp_N = 1 # Number of experiments
     
-    d = 900 # Discretization level
+    d = 100 # Discretization level
     
     for exp in range(exp_N): # Make exp_N experiments
         tic = time.perf_counter()
-        n = np.random.randint(1,100) # Get number of segments randomly
+        n = np.random.randint(1,10) # Get number of segments randomly
         X = np.random.randint(0,d) # Get base coordinate on X axis randomly
-        Y = np.random.randint(0,10*d) # Get base coordinate on X axis randomly
+        Y = np.random.randint(1,10*d) # Get base coordinate on X axis randomly
         base = np.array((X,d*Y)) # Base coordinates proportioned
         L = max_tour(d,base) #Get maximum tour length randomly
         
@@ -134,7 +134,7 @@ if __name__ == "__main__":
             Tour1_solv, Tour2_solv, M1_solv, M2_solv, Max_sum = solver_gurobi.solver_results(n, a, xy, L, base)
             toc_solver = time.perf_counter()
             
-            print_results(xy, base, L, Tour, TotalLenght, Tour1, Tour2, M1, M2,
+            print_results(d, xy, base, L, Tour, TotalLenght, Tour1, Tour2, M1, M2,
                               Tour1_ce, Tour2_ce, M1_ce, M2_ce, Tour1_solv, Tour2_solv,
                               M1_solv, M2_solv, Max_sum)
 
