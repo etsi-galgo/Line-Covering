@@ -60,5 +60,5 @@ def max_tour(l,base):
     """  
     minL = 2*math.sqrt((max(base[0], l-base[0]))**2+base[1]**2)+1
     maxL = math.sqrt(base[0]**2+base[1]**2)+math.sqrt((l-base[0])**2+base[1]**2)+l
-    return np.random.randint(minL,maxL)
+    return np.random.randint(minL,minL+(maxL-minL)/3)
 

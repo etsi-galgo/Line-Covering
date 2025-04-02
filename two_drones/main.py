@@ -104,22 +104,24 @@ if __name__ == "__main__":
     path = create_dir(today)
 
     
-    exp_N = 1 # Number of experiments
+    exp_N = 100 # Number of experiments
     
-    d = 100 # Discretization level
+    d = 1000 # Discretization level
     
     for exp in range(exp_N): # Make exp_N experiments
         tic = time.perf_counter()
-        n = np.random.randint(1,10) # Get number of segments randomly
+  #      n = np.random.randint(1,10) # Get number of segments randomly
+        n=20
         X = np.random.randint(0,d) # Get base coordinate on X axis randomly
-        Y = np.random.randint(1,10*d) # Get base coordinate on X axis randomly
-        base = np.array((X,d*Y)) # Base coordinates proportioned
+ #       Y = np.random.randint(1,10*d) # Get base coordinate on X axis randomly
+        Y = d/2
+        base = np.array((X,Y)) # Base coordinates proportioned
         L = max_tour(d,base) #Get maximum tour length randomly
         
         
         # Generate a random line of segments
         # Output the segments coordinates and the set of points A used for linear problem formulation
-        xy, a = line_generation.generate(d, n, base)
+        n, xy, a = line_generation.generate(d, n, base)
         
    
         if (xy[0,0]<0) and (xy[-1,1]>0):
