@@ -80,7 +80,53 @@ def print_results(d, xy, base, L, Tour, TotalLenght, Tour1, Tour2, M1, M2,
     print("T1 total length: l1 =", M1_solv)
     print("T2 =",Tour2_solv)
     print("T2 total length: l2 =", M2_solv)  
+    print("Solver result", Max_sum)  
     
+    
+def print_results_to_txt(filename, exp, d, xy, base, L, Tour, TotalLenght, Tour1, Tour2, M1, M2,
+                         Tour1_ce, Tour2_ce, M1_ce, M2_ce, Tour1_solv, Tour2_solv,
+                         M1_solv, M2_solv, Max_sum):
+    
+    
+    
+    
+    with open(filename, 'w') as f:
+        print("Experiment N:", exp, file=f)
+        print("___________________", file=f)
+        print("Number of points on the line (discretization):", d, file=f)
+        print("Base coordinates:", base, file=f)
+        print("Max Length:", L, file=f)
+        print("___________________", file=f)
+        print("MinSum with DP result:", file=f)
+        for i in range(Tour.shape[0]):
+            print('Tour', i+1, 'start:', Tour[i, 0], file=f)
+            print('Tour', i+1, 'end:', Tour[i, 1], file=f)
+            print('Tour', i+1, 'length:', tour_lenght(Tour[i], base[1]), file=f)
+
+        print('Total number of tours:', Tour.shape[0], file=f)
+        print('Total length:', TotalLenght, file=f)
+
+        print("___________________", file=f)
+        print("Greedy results:", file=f)
+        print("T1 =", Tour1, file=f)
+        print("T1 total length: l1 =", M1, file=f)
+        print("T2 =", Tour2, file=f)
+        print("T2 total length: l2 =", M2, file=f)
+
+        print("___________________", file=f)
+        print("Cutting and enlarging results:", file=f)
+        print("T1 =", Tour1_ce, file=f)
+        print("T1 total length: l1 =", M1_ce, file=f)
+        print("T2 =", Tour2_ce, file=f)
+        print("T2 total length: l2 =", M2_ce, file=f)
+
+        print("___________________", file=f)
+        print("MILP solver results:", file=f)
+        print("T1 =", Tour1_solv, file=f)
+        print("T1 total length: l1 =", M1_solv, file=f)
+        print("T2 =", Tour2_solv, file=f)
+        print("T2 total length: l2 =", M2_solv, file=f)
+        print("Solver result", Max_sum, file=f)
 
 if __name__ == "__main__":
     
@@ -104,9 +150,9 @@ if __name__ == "__main__":
     path = create_dir(today)
 
     
-    exp_N = 1 # Number of experiments
+    exp_N = 100 # Number of experiments
     
-    d = 1000 # Discretization level
+    d = 500 # Discretization level
     
     for exp in range(exp_N): # Make exp_N experiments
         tic = time.perf_counter()
@@ -114,8 +160,8 @@ if __name__ == "__main__":
         n=100
         cv=0.2
         dens=0.8
-        X = 500
-        Y = 1000
+        X = 250
+        Y = 500
         base = np.array((X,Y)) # Base coordinates
         L = max_tour(d,base) #Get maximum tour length randomly
         
@@ -140,6 +186,12 @@ if __name__ == "__main__":
             print_results(d, xy, base, L, Tour, TotalLenght, Tour1, Tour2, M1, M2,
                               Tour1_ce, Tour2_ce, M1_ce, M2_ce, Tour1_solv, Tour2_solv,
                               M1_solv, M2_solv, Max_sum)
+            
+            filename = path+"exp_"+str(exp_N)+".txt"
+            print_results_to_txt(filename, exp, d, xy, base, L, Tour, TotalLenght, Tour1, Tour2, M1, M2,
+                                     Tour1_ce, Tour2_ce, M1_ce, M2_ce, Tour1_solv, Tour2_solv,
+                                     M1_solv, M2_solv, Max_sum)
+            
 
             df.loc[exp] = {'Discretization':d, 'Experiment N':exp,
                          'Number of segments': n,

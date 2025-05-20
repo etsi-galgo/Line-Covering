@@ -25,12 +25,12 @@ def prepare_data(a, base):
 
 
 def minmax_problem(n, xy, A, L, base):
+    C = prepare_data(A, base)
     try:
         # Create a new model
         m = gp.Model("MinMax") 
         
         # Create variables
-        C = prepare_data(A, base)
         # Variable T
         T = m.addVar(vtype = GRB.CONTINUOUS, lb = 0,  name="T")
     
@@ -38,8 +38,8 @@ def minmax_problem(n, xy, A, L, base):
         Z_1 = []
         Z_2 = [] 
         for i in range(A.size):
-            z_i_1 = [m.addVar(vtype = GRB.BINARY,  name = f'z1_{i}_{j}') for j in range(i+1,A.size)]
-            z_i_2 = [m.addVar(vtype = GRB.BINARY,  name = f'z2_{i}_{j}') for j in range(i+1,A.size)]
+            z_i_1 = [m.addVar(vtype = GRB.BINARY,  name = f'z1_{i}_{j}') for j in range(i,A.size)]
+            z_i_2 = [m.addVar(vtype = GRB.BINARY,  name = f'z2_{i}_{j}') for j in range(i,A.size)]
             Z_1.append(z_i_1)
             Z_2.append(z_i_2)
     
@@ -55,18 +55,18 @@ def minmax_problem(n, xy, A, L, base):
         Tours_1 = []
         Tours_2 = []
         for i in range(A.size):
-            for j in range(i+1, A.size):
-                Tours_1.append(Z_1[i][j-i-1]*C[i,j])
-                Tours_2.append(Z_2[i][j-i-1]*C[i,j])
+            for j in range(i, A.size):
+                Tours_1.append(Z_1[i][j-i]*C[i,j])
+                Tours_2.append(Z_2[i][j-i]*C[i,j])
                 
         m.addConstr(sum(Tours_1) <= T, "minmax1") 
         m.addConstr(sum(Tours_2) <= T, "minmax2") 
     
         # Tour length limit
         for i in range(A.size):
-            for j in range(i+1, A.size):
-                m.addConstr(Z_1[i][j-i-1]*C[i,j] <= L, "length1")
-                m.addConstr(Z_2[i][j-i-1]*C[i,j] <= L, "length2")
+            for j in range(i, A.size):
+                m.addConstr(Z_1[i][j-i]*C[i,j] <= L, "length1")
+                m.addConstr(Z_2[i][j-i]*C[i,j] <= L, "length2")
 
         # Segment covering condition
         finseg=np.zeros(A.size-1)
@@ -84,8 +84,8 @@ def minmax_problem(n, xy, A, L, base):
             for i in range(A.size):
                 for j in range(i+1, A.size):
                     if q>=i and q<j:
-                        Owner_1_q.append(Z_1[i][j-i-1])
-                        Owner_2_q.append(Z_2[i][j-i-1])
+                        Owner_1_q.append(Z_1[i][j-i])
+                        Owner_2_q.append(Z_2[i][j-i])
             m.addConstr(sum(Owner_1_q) == S_1[q], "cover1")
             m.addConstr(sum(Owner_2_q) == S_2[q], "cover2")
             
@@ -93,37 +93,28 @@ def minmax_problem(n, xy, A, L, base):
         m.optimize()
 
         # Return the results
+        # Retrieve tours from Z_1 and Z_2
+        Tour1 = []
+        Tour2 = []
+        for i in range(A.size):
+            for j in range(i, A.size):
+                if Z_1[i][j-i].X > 0.5:  # selected segment
+                    Tour1.append((i, j))
+                if Z_2[i][j-i].X > 0.5:
+                    Tour2.append((i, j))
+
+        # Return the results
         Max_sum = m.ObjVal
-        Cover_1 = [s1.x for s1 in S_1]
-        Cover_2 = [s2.x for s2 in S_2]
+        Cover_1 = [s1.X for s1 in S_1]
+        Cover_2 = [s2.X for s2 in S_2]
         
-        print ("Number of variables:", len(m.getVars()))
-            
-        return Max_sum, Cover_1, Cover_2
+        return Max_sum, Cover_1, Cover_2, Tour1, Tour2     
     
     except gp.GurobiError as e:
         print('Error code ' + str(e.errno) + ': ' + str(e))
     except AttributeError:
         print('Encountered an attribute error') 
     
-def get_tour_index(cov):
-    """
-    Getting the indexes of each tour from the covering variable S of MIPL
-    """
-    p = []
-    q = []
-    if cov[0]==1:
-        p.append(0)
-    for i in range(len(cov)-1):
-        if cov[i]==0 and cov[i+1]==1:
-            p.append(i+1)
-        if cov[i]==1 and cov[i+1]==0:
-            q.append(i+1)    
-    if cov[len(cov)-1]==1:
-        q.append(len(cov))
-    T = np.transpose(np.array([p,q]))
-    return T
-
 
 def get_tours(A, cov_id, base):
     """
@@ -142,11 +133,9 @@ def get_tours(A, cov_id, base):
     
     
 def solver_results(n, A, xy, L, base):
-    Max_sum, Cover_1, Cover_2 = minmax_problem(n, xy, A, L, base)
+    Max_sum, Cover_1, Cover_2, A_Tour1, A_Tour2 = minmax_problem(n, xy, A, L, base)
     
-    drone_1 = get_tour_index(Cover_1)
-    Tour1, NTour1 , Lenght1 = get_tours(A, drone_1, base)
+    Tour1, NTour1 , Lenght1 = get_tours(A, np.array(A_Tour1), base)
     
-    drone_2 = get_tour_index(Cover_2)
-    Tour2, NTour2 , Lenght2 = get_tours(A, drone_2, base)
+    Tour2, NTour2 , Lenght2 = get_tours(A, np.array(A_Tour2), base)
     return Tour1, Tour2, Lenght1, Lenght2, Max_sum

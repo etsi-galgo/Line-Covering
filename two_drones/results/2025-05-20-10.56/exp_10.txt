@@ -1,0 +1,40 @@
+Experiment N: 9
+___________________
+Number of points on the line (discretization): 500
+Base coordinates: [250 500]
+Max Length: 1128
+___________________
+MinSum with DP result:
+Tour 1 start: -193.0
+Tour 1 end: -152.0
+Tour 1 length: 1099.5496872214292
+Tour 2 start: 123.0
+Tour 2 end: 129.0
+Tour 2 length: 1037.2797149341952
+Tour 3 start: 129.0
+Tour 3 end: 201.0
+Tour 3 length: 1127.2615985016869
+Total number of tours: 3
+Total length: 3264.829402155624
+___________________
+Greedy results:
+T1 = [[129. 201.]]
+T1 total length: l1 = 1127.2615985016869
+T2 = [[-193. -152.]
+ [ 123.  129.]]
+T2 total length: l2 = 2136.8294021556244
+___________________
+Cutting and enlarging results:
+T1 = [[129. 201.]]
+T1 total length: l1 = 1127.2615985016869
+T2 = [[-193. -152.]
+ [ 123.  129.]]
+T2 total length: l2 = 2136.8294021556244
+___________________
+MILP solver results:
+T1 = [[129. 201.]]
+T1 total length: l1 = 1127.2615985016869
+T2 = [[-193. -152.]
+ [ 123.  129.]]
+T2 total length: l2 = 2136.8294021556244
+Solver result 2136.8294021556244
