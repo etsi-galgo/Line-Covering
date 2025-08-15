@@ -39,11 +39,8 @@ This project is distributed under the repository's main license
 ---
 
 ## Author
-This code was developed by **Alina Kasiuk**
-
-As a part of the research **Covering line segments with drones: the minmax criterion**
-
-Authors: **José Miguel Díaz-Bañez, José Manuel Higes, Alina Kasiuk and Inmaculada Ventura**
-
+This code was developed by **Alina Kasiuk**. 
+As a part of the research **Covering line segments with drones: the minmax criterion**. 
+Authors: **José Miguel Díaz-Bañez, José Manuel Higes, Alina Kasiuk and Inmaculada Ventura**. 
 Part of the **ETSI GALGO** research codebase.
 
