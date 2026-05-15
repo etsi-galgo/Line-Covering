@@ -1,14 +1,10 @@
 # Dataset Description
 
-This folder contains the datasets used in the experimental evaluation of the algorithms presented in the paper:
-
-> "Title of Your Paper"
-
-The experiments compare the performance of the proposed greedy and improved greedy algorithms against the optimal solutions obtained with Gurobi.
+This folder contains the datasets used in the experimental evaluation of the algorithms presented in the paper "Optimizing Line Segment Inspection with Limited-Range Drones".
 
 ---
 
-# Experiment 1: Influence of Segment Homogeneity and Maximum Tour Length
+## Experiment 1: Influence of Segment Homogeneity and Maximum Tour Length
 
 In the first experiment, we investigate how the segment homogeneity and the maximum tour length \(L\) influence the approximation factor of the algorithms.
 
@@ -40,7 +36,7 @@ The segment length distribution was generated with a fixed mean value of 10.
 
 ---
 
-# Evaluated Metrics
+### Evaluated Metrics
 
 Two approximation factors are evaluated:
 
@@ -55,15 +51,9 @@ If \(T_2\) is the solution obtained by one of the proposed algorithms and \(T_2^
 
 ---
 
-# File Description
+### File Description
 
-## `experiment_1.csv`
-
-This file contains the results of all generated scenarios.
-
----
-
-# Column Description
+### `experiment_1.csv`
 
 | Column | Description |
 |---|---|
