@@ -25,8 +25,8 @@ A total of **987 scenarios** were generated.
 | `nSegNum` | Number of segments (int value)|
 | `Base` | Base location height ($Y_b$). `0`: $Y_b<1$, `1`: $Y_b>1$ |
 | `BaseNum` | Base location height ($Y_b$ value) |
-| `L` | Maximum allowed tour length. `0`: $0<L^*<0.5$, `1`: $0.5<L^*<1$ |
-| `Lprop` | Normalized maximum allowed tour length ($L^* = L/L_max$)|
+| `L` | Maximum allowed tour length. `0`: $0<L*<0.5$, `1`: $0.5<L*<1$ |
+| `Lprop` | Normalized maximum allowed tour length ($L* = L/L_max$)|
 | `gurobiMinMax` | Optimal MinMax solution obtained with Gurobi |
 | `gurobiT1` | Number of tours assigned to drone 1 in the Gurobi solution |
 | `gurobiT2` | Number of tours assigned to drone 2 in the Gurobi solution |
