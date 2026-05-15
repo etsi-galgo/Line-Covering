@@ -25,7 +25,7 @@ A total of **987 scenarios** were generated.
 | `nSegNum` | Number of segments (int value)|
 | `Base` | Base location height ($Y_b$). `0`: $Y_b<1$, `1`: $Y_b>1$ |
 | `BaseNum` | Base location height ($Y_b$ value) |
-| `L` | Maximum allowed tour length. `0`: $0<L\*<0.5$, `1`: $0.5<L^\*<1$ |
+| `L` | Maximum allowed tour length. `0`: $0<L^\*<0.5$, `1`: $0.5<L^\*<1$ |
 | `Lprop` | Normalized maximum allowed tour length ($L^\* = L/L_{max}$)|
 | `gurobiMinMax` | Optimal MinMax solution obtained with Gurobi |
 | `gurobiT1` | Number of tours assigned to drone 1 in the Gurobi solution |
@@ -70,7 +70,7 @@ To systematically evaluate the influence of the maximum tour length \(L\), the b
 | `realMean` | Real mean segment length |
 | `Density` | Target density of segments:  `0`: targetDensity = 20%, `1`: targetDensity = 80%|
 | `realDensity` | Real segment density |
-| `L` | Maximum allowed tour length. `0`: $L < Lmin+29,8$, `1`:  $L < Lmin+241$, `2`:  $L < Lmax$ |
+| `L` | Maximum allowed tour length. `0`: $L < L_{min}+29,8$, `1`:  $L < L_{min}+241$, `2`:  $L < L_{max}$ |
 | `numL` | Real maximum allowed tour length |
 | `gurobiMinMax` | Optimal MinMax solution obtained with Gurobi |
 | `greedyMinMax` | MinMax solution obtained with the greedy algorithm |
