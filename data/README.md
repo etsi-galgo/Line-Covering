@@ -18,11 +18,11 @@ A total of **987 scenarios** were generated.
 
 | Column | Description |
 |---|---|
-| `Hom` | Segment length homogeneity. `0`: 20%, `1`: 60-80% |
+| `Hom` | Segment length homogeneity. `0`: CV = 20%, `1`: CV = 60...80% |
 | `medLongSeg` | Mean segment length |
 | `CV` | Coefficient of variation of segment lengths |
-| `nSeg` | Segments density (Portion of line corresponding to a segment). `0`: 20%, `1`: 80% |
-| `nSegNum` | Number of segments |
+| `nSeg` | Number of segments. `0`: SegNum < 40, `1`: SegNum > 40 |
+| `nSegNum` | Number of segments (int value)|
 | `Base` | Base location height ($Y_b$). `0`: $Y_b<1$, `1`: $Y_b>1$ |
 | `BaseNum` | Base location height ($Y_b$ value) |
 | `L` | Maximum allowed tour length. `0`: $0<L^*<0.5$, `1`: $0.5<L^*<1$ |
